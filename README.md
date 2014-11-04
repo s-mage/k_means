@@ -6,6 +6,7 @@ This is my third k-means, that finally should be well designed and implemented o
 Current data model
 ------------------
 
+* Experiment is the set of actions to see where that method works better than classical k-means
 * DataWrapper is the place where all external things as plotting, file reading
 etc should be.
 * Space is global set of objects
