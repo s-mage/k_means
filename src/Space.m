@@ -22,7 +22,7 @@ classdef Space < handle
       S.Proximities = Distances2Proximities(S);
       S.ClustersCount = ClustersCount;
       S.ObjectsCount = size(Distances, 1);
-      S.Subsets = []
+      S.Subsets = [];
       if nargin < 3 % if Weight is absent
         Weight = 0;
       end
@@ -70,7 +70,8 @@ classdef Space < handle
           NewProximity = CalculateProximity(S);
           DispersionDiff = NewDispersion - S.Dispersion;
           ProximityDiff = NewProximity - S.Proximity;
-          Diff = (- (1 - S.Weight) * DispersionDiff + S.Weight * ProximityDiff);
+          % Diff = (- (1 - S.Weight) * DispersionDiff + S.Weight * ProximityDiff);
+          Diff = (-  S.Weight * DispersionDiff + ProximityDiff);
           Result = Diff > 0;
           if ~ Result
             Move(S, NewSubset, OldSubset, Number); % Move back

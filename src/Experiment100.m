@@ -1,9 +1,9 @@
-function errors_size = Experiment(Filename)
+function errors_size = Experiment100(Filename)
   if nargin < 1
-    Filename = '../data/iris.data.csv';
+    Filename = '../data/iris_01.data.csv';
   end
   % Weights = [0:1000] ./ 1000;
-  Weights = 1 - [0:50] ./ 10000;
+  Weights = [0:50]./ 10000;
   errors_size = [];
   for Weight = Weights
     errors = ExperimentIteration(Weight, Filename);
@@ -17,11 +17,11 @@ function errors = ExperimentIteration(Weight, Filename)
     Weight = 0;
   end
   if nargin < 2
-    Filename = '../data/iris.data.csv';
+    Filename = '../data/iris_01.data.csv';
   end
 
   dw = DataWrapper(Filename, Weight);
-  ic = [ones(1, 50), ones(1, 50) * 2, ones(1, 50) * 3]; % initial clustering
+  ic = [ones(1, 50), ones(1, 50) * 2]; % initial clustering
   SetSpace(dw, ic);
   ClusterizeSpace(dw);
   errors = find(dw.Space.Clustering ~= RightClustering());
@@ -29,7 +29,7 @@ end
 
 function result = RightClustering(order)
   if nargin < 1
-    order = [1 2 3];
+    order = [1 2];
   end
   result = [];
   for k = order
