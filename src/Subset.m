@@ -38,7 +38,7 @@ classdef Subset < handle
     %
     function Result = Eta(S)
       x = Submatrix(S);
-      Result = sum(x(:) .^ 2) / (2 * S.Size);
+      Result = sum(x(:) .^ 2) / (2 * S.Size ^ 2 );
     end
   end
 end

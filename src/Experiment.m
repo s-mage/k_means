@@ -2,13 +2,14 @@ function errors_size = Experiment(Filename)
   if nargin < 1
     Filename = '../data/iris.data.csv';
   end
-  Weights = [0:1000] ./ 1000;
-  % Weights = [0:50];
+  % Weights = [900:1000] ./ 1000;
+  Weights = [0:50] ./ 50;
   errors_size = [];
   for Weight = Weights
     errors = ExperimentIteration(Weight, Filename);
     errors_size = [errors_size size(errors, 2)];
   end
+  save('../results/experiment_out.mat', 'Weights', 'errors_size')
   plot(Weights, errors_size);
 end
 

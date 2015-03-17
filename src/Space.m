@@ -46,10 +46,11 @@ classdef Space < handle
     function p = Distances2Proximities(S, Distances)
       N = size(Distances, 1);
       p = zeros(N, N);
-      Dist2Origin = @(x) sum(Distances(:, x) .^ 2) / N;
+      eta = sum(Distances(:) .^ 2) / (2 * N ^ 2);
+      Dist2Origin = @(x) (sum(Distances(:, x) .^ 2) / N) - eta;
       for i = 1:N
         for j = 1:N
-          p(i, j) = (Dist2Origin(i) + Dist2Origin(j) + Distances(i, j) ^ 2) / 2;
+          p(i, j) = (Dist2Origin(i) + Dist2Origin(j) - Distances(i, j) ^ 2) / 2;
         end
       end
     end
@@ -102,7 +103,7 @@ classdef Space < handle
         Ns(i) = S.Subsets(i).Size;
         etas(i) = Eta(S.Subsets(i));
       end
-      result = sum(Ns .* etas) / S.ClustersCount;
+      result = sum(Ns .* etas) / S.ObjectsCount;
     end
 
     % Compactness of set of clusters.
