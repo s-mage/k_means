@@ -6,8 +6,8 @@ classdef Space < handle
     ObjectsCount
     Distances   % Matrix of distances.   (n x n)
     Proximities % Matrix of proximities. (N x N)
-    Dispersion  % In-cluster dispersies. [Number] ?
-    Proximity   % External Dispersion.   [Number] ?
+    Dispersion  % In-cluster dispersies criterion J(K). [Number]
+    Proximity   % External Dispersions criterion I(K).  [Number]
     Weight      % Weight of Proximity.   [Number]
   end
 
@@ -19,7 +19,7 @@ classdef Space < handle
     %
     function S = Space(Distances, ClustersCount, Weight, InitialClustering)
       S.Distances = Distances;
-      S.Proximities = Distances2Proximities(S);
+      S.Proximities = Distances2Proximities(S, Distances);
       S.ClustersCount = ClustersCount;
       S.ObjectsCount = size(Distances, 1);
       S.Subsets = [];
@@ -37,19 +37,19 @@ classdef Space < handle
       Result = [];
       for i = 1:max(Clustering)
         Numbers = find(Clustering == i);
-        Result = [Result, Subset(S.Distances, Numbers)];
+        Result = [Result, Subset(S.Distances, S.Proximities, Numbers)];
       end
       S.Clustering = Clustering;
       S.Subsets = Result;
     end
 
-    function p = Distances2Proximities(S)
-      N = S.ObjectsCount;
+    function p = Distances2Proximities(S, Distances)
+      N = size(Distances, 1);
       p = zeros(N, N);
-      Dist2Origin = @(x) sum(S.Distances(:, x) .^ 2) / N;
+      Dist2Origin = @(x) sum(Distances(:, x) .^ 2) / N;
       for i = 1:N
         for j = 1:N
-          p(i, j) = (Dist2Origin(i) + Dist2Origin(j) + S.Distances(i, j) ^ 2) / 2;
+          p(i, j) = (Dist2Origin(i) + Dist2Origin(j) + Distances(i, j) ^ 2) / 2;
         end
       end
     end
@@ -70,8 +70,8 @@ classdef Space < handle
           NewProximity = CalculateProximity(S);
           DispersionDiff = NewDispersion - S.Dispersion;
           ProximityDiff = NewProximity - S.Proximity;
-          % Diff = (- (1 - S.Weight) * DispersionDiff + S.Weight * ProximityDiff);
-          Diff = (-  S.Weight * DispersionDiff + ProximityDiff);
+          Diff = (- (1 - S.Weight) * DispersionDiff + S.Weight * ProximityDiff);
+          % Diff = (- DispersionDiff + S.Weight * ProximityDiff);
           Result = Diff > 0;
           if ~ Result
             Move(S, NewSubset, OldSubset, Number); % Move back
@@ -92,6 +92,9 @@ classdef Space < handle
       Move(OldSubset, NewSubset, Number);
     end
 
+    % Average weighted dispersion of clusters.
+    % J(K) = 1 / N * (sum_{k = 1}^{K} N_k * \eta_k^2)
+    % 
     function result = CalculateDispersion(S)
       Ns = zeros(1, S.ClustersCount);
       etas = zeros(1, S.ClustersCount);
@@ -99,9 +102,12 @@ classdef Space < handle
         Ns(i) = S.Subsets(i).Size;
         etas(i) = Eta(S.Subsets(i));
       end
-      result = 1.0 / S.ClustersCount * sum(Ns .* etas);
+      result = sum(Ns .* etas) / S.ClustersCount;
     end
 
+    % Compactness of set of clusters.
+    % \delta(K) = 1 / K^2 * sum(sum(proximities))
+    %
     function result = CalculateProximity(S)
       result = 0;
       for first = S.Subsets

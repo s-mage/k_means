@@ -6,11 +6,13 @@ classdef Subset < handle
     Numbers % numbers is matrix that belongs to subset.
     Size    % size of subset.
     Set     % global matrix of distances.
+    SetP    % global matrix of proximities.
   end
 
   methods
-    function S = Subset(Set, Numbers)
+    function S = Subset(Set, SetP, Numbers)
       S.Set = Set;
+      S.SetP = SetP;
       S.Numbers = Numbers;
       S.Size = size(Numbers, 2);
     end
@@ -27,12 +29,12 @@ classdef Subset < handle
     end
 
     function Result = Proximity(S, Other)
-      InterClusterSubset = S.Set(S.Numbers, Other.Numbers);
+      InterClusterSubset = S.SetP(S.Numbers, Other.Numbers);
       Result = sum(InterClusterSubset(:)) / (S.Size * Other.Size);
     end
 
-    % Dispersy of cluster.
-    % @return [Float] dispersy is a number.
+    % Squared dispersion of cluster.
+    % @return [Float] dispersion is a number.
     %
     function Result = Eta(S)
       x = Submatrix(S);

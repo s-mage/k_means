@@ -2,8 +2,8 @@ function errors_size = Experiment(Filename)
   if nargin < 1
     Filename = '../data/iris.data.csv';
   end
-  % Weights = [0:1000] ./ 1000;
-  Weights = 1 - [0:50] ./ 10000;
+  Weights = [0:1000] ./ 1000;
+  % Weights = [0:50];
   errors_size = [];
   for Weight = Weights
     errors = ExperimentIteration(Weight, Filename);
