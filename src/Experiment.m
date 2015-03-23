@@ -3,7 +3,7 @@ function Experiment(Filename, Weights)
     Filename = '../data/iris.data.csv';
   end
   if nargin < 2
-    Weights = [0:50] ./ 50; % because nothing interesting above 0.5
+    Weights = [0:50] ./ 50;
   end
   result_50_50_50 = ExperimentTemplate(Filename, [ones(1, 50), ones(1, 50) * 2, ones(1, 50) * 3], Weights); 
   result_50_70_30 = ExperimentTemplate(Filename, [ones(1, 50), ones(1, 70) * 2, ones(1, 30) * 3], Weights); 
