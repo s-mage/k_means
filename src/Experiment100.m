@@ -1,31 +1,60 @@
-function errors_size = Experiment100(Filename)
+function Experiment(Filename, Weights)
   if nargin < 1
     Filename = '../data/iris_01.data.csv';
   end
-  % Weights = [900:1000] ./ 1000;
-  Weights = [0:50] ./ 50;
-  errors_size = [];
-  for Weight = Weights
-    errors = ExperimentIteration(Weight, Filename);
-    errors_size = [errors_size size(errors, 2)];
+  if nargin < 2
+    Weights = [0:50] ./ 50;
   end
-  save('../results/experiment100_out.mat', 'Weights', 'errors_size')
-  plot(Weights, errors_size);
+  result_50_50 = ExperimentTemplate(Filename, [ones(1, 50), ones(1, 50) * 2], Weights); 
+  result_70_30 = ExperimentTemplate(Filename, [ones(1, 70), ones(1, 30) * 2], Weights); 
+  result_30_70 = ExperimentTemplate(Filename, [ones(1, 30), ones(1, 70) * 2], Weights);
+  figure
+  plot(Weights, result_50_50_50, ...
+       Weights, result_50_70_30, '--', ...
+       Weights, result_50_30_70, ':');
+  save('../results/experiment100_out.mat');
 end
 
-function errors = ExperimentIteration(Weight, Filename)
+% Experiments with all 3 clusters of irices.
+%
+function ErrorsSize = ExperimentTemplate(Filename, InitialClustering, Weights, ClusteringOrder)
+  if nargin < 1
+    Filename = '../data/iris.data.csv';
+  end
+  if nargin < 2
+    InitialClustering = [ones(1, 50), ones(1, 50) * 2];
+  end
+  if nargin < 3
+    Weights = [0:50] ./ 50;
+  end
+  if nargin < 4
+    ClusteringOrder = [1 2];
+  end
+  ErrorsSize = [];
+  for Weight = Weights
+    errors = ExperimentIteration(Weight, Filename, InitialClustering, ClusteringOrder);
+    ErrorsSize = [ErrorsSize size(errors, 2)];
+  end
+end
+
+function errors = ExperimentIteration(Weight, Filename, ic, ClusteringOrder)
   if nargin < 1
     Weight = 0;
   end
   if nargin < 2
-    Filename = '../data/iris_01.data.csv';
+    Filename = '../data/iris_01.data.csv.data.csv';
+  end
+  if nargin < 3
+    ic = [ones(1, 50), ones(1, 50) * 2]; % initial clustering
+  end
+  if nargin < 4
+    ClusteringOrder = [1 2];
   end
 
   dw = DataWrapper(Filename, Weight);
-  ic = [ones(1, 50), ones(1, 50) * 2]; % initial clustering
   SetSpace(dw, ic);
   ClusterizeSpace(dw);
-  errors = find(dw.Space.Clustering ~= RightClustering());
+  errors = find(dw.Space.Clustering ~= RightClustering(ClusteringOrder));
 end
 
 function result = RightClustering(order)
@@ -36,8 +65,4 @@ function result = RightClustering(order)
   for k = order
     result = [result, ones(1, 50) * k];
   end
-end
-
-function result = Center(Coordinates, ClusterNumbers)
-  result = mean(Coordinates(ClusterNumbers, ClusterNumbers));
 end
